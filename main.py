@@ -29,22 +29,20 @@ class CharacterAI:
                 handle = self.page.query_selector('div.chattitle.p-0.pe-1.m-0')
                 time.sleep(0.5)
             self.chara_name = handle.inner_text()
+            self.chara_name = "".join(self.chara_name.split("  ")[:-1])
             time.sleep(0.5)
         return
 
     def send_msg(self, msg: str) -> None:
-        print(f"Sending msg : {msg}")
+        # print(f"Sending msg : {msg}")
         ipt = self.page.get_by_placeholder("Type a message")
         ipt.fill(msg)
         ipt.press("Enter")
-        print("Message sent")
+        # print("Message sent")
         return
 
     def get_msg(self, sleep_time) -> str:
-        #xpath = '//*[@id="root"]/div[2]/div/div[3]/div/div/form/div/div/div[2]/button[1]/div'
-        #lct = self.page.locator(xpath)
-        #await lct.wait_for()
-        print("Getting msg...")
+        #print("Getting msg...")
         output_text = ""
         while True:
             time.sleep(sleep_time)
@@ -55,15 +53,35 @@ class CharacterAI:
             print(f"Got response: {output_text}")
         return output_text
 
+    def get_msg2(self) -> str:
+        # print("Getting msg...")
+
+        # locate the button with class "btn py-0"
+        lct = self.page.locator("button.btn.py-0").nth(0)
+
+        expect(lct).to_be_enabled(timeout=0)
+
+        div = self.page.query_selector('div.msg.char-msg')
+        output_text = div.inner_text()
+        print(f"{self.chara_name}: {output_text}")
+        return output_text
+
 
 if __name__ == "__main__":
     with sync_playwright() as p:
+
         browser = p.firefox.launch(headless=False)
         page = browser.new_page()
         CAI = CharacterAI(page)
-        CAI.set_id("RQrrOj-UNdEV2_PC5D03US-27MZ7EUtaRH_husjbRQA")
+        CAI.set_id("RRGejclDCpSjxWDH4TnwCd_C9NuzlcQXADKfdI-1qhk") # 米浴
         chara_name = CAI.chara_name
-        print(f"Chara name: {chara_name}")
-        CAI.send_msg("你好")
-        CAI.get_msg(5)
+        print(f"Chara name:\n {chara_name}")
+        CAI.get_msg2()
+        while True:
+            msg = input("> ")
+            if msg == "exit":
+                break
+            CAI.send_msg(msg)
+            CAI.get_msg2()
+        # CAI.get_msg(5)
         browser.close()
