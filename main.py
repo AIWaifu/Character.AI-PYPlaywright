@@ -1,14 +1,17 @@
 from playwright.sync_api import Playwright, sync_playwright, expect
+import asyncio
 
 
 class CharacterAI:
     def __init__(self, page):
+        # initialization
         self.charaid = ""
         self.url = ""
         self.chara_name = ""
         self.page = page
 
     async def set_id(self, charaid: str) -> None:
+        # visit character.ai chat by charaid
         self.charaid = charaid
         self.url = "https://beta.character.ai/chat?char=" + charaid
         await self.page.goto(self.url)
